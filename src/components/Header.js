@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -33,6 +33,15 @@ const socials = [
 ];
 
 const Header = () => {
+  const [scrollingUp, setScrollingUp] = useState(true);
+  const prevScrollY = useRef(0);
+
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+    setScrollingUp(currentScrollY < prevScrollY.current);
+    prevScrollY.current = currentScrollY;
+  };
+
   const handleClick = (anchor) => () => {
     const id = `${anchor}-section`;
     const element = document.getElementById(id);
@@ -44,17 +53,25 @@ const Header = () => {
     }
   };
 
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <Box
       position="fixed"
       top={0}
       left={0}
       right={0}
-      translateY={0}
+      transform={`translateY(${scrollingUp ? "0" : "-200px"})`}
       transitionProperty="transform"
       transitionDuration=".3s"
       transitionTimingFunction="ease-in-out"
       backgroundColor="#18181b"
+      zIndex={1000}
     >
       <Box color="white" maxWidth="1280px" margin="0 auto">
         <HStack
@@ -64,11 +81,34 @@ const Header = () => {
           alignItems="center"
         >
           <nav>
-            {/* Add social media links based on the `socials` data */}
+            {
+              /* Add social media links based on the `socials` data */
+              socials.map((social) => (
+                <a
+                  href={social.url}
+                  tag="FontAwesomeIcon"
+                  style={{
+                    display: "inline-flex",
+                    justifyContent: "space-between",
+                    margin: "10px",
+                  }}
+                >
+                  <FontAwesomeIcon icon={social.icon} size="2x" />
+                </a>
+              ))
+            }
           </nav>
           <nav>
             <HStack spacing={8}>
-              {/* Add links to Projects and Contact me section */}
+              {
+                /* Add links to Projects and Contact me section */
+                <>
+                  <a color onClick={handleClick("projects")}>
+                    Projects
+                  </a>
+                  <a onClick={handleClick("contactme")}>Contact Me</a>
+                </>
+              }
             </HStack>
           </nav>
         </HStack>
