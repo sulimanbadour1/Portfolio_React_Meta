@@ -103,10 +103,20 @@ const Header = () => {
               {
                 /* Add links to Projects and Contact me section */
                 <>
-                  <a color onClick={handleClick("projects")}>
+                  <a
+                    href="/#projects"
+                    onClick={handleClick("projects")}
+                    key="projects-section"
+                  >
                     Projects
                   </a>
-                  <a onClick={handleClick("contactme")}>Contact Me</a>
+                  <a
+                    href="/#contact-me"
+                    onClick={handleClick("contactme")}
+                    key="contactme-section"
+                  >
+                    Contact Me
+                  </a>
                 </>
               }
             </HStack>

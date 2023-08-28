@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import {
   Box,
@@ -11,6 +11,7 @@ import {
   Select,
   Textarea,
   VStack,
+  Spinner,
 } from "@chakra-ui/react";
 import * as Yup from "yup";
 import FullScreenSection from "./FullScreenSection";
@@ -21,6 +22,16 @@ const LandingSection = () => {
   const { isLoading, response, submit } = useSubmit();
   const { onOpen } = useAlertContext();
 
+  useEffect(() => {
+    if (!!response) {
+      onOpen(response.type, response.message);
+      if (response.type === "success") {
+        formik.resetForm();
+      }
+    }
+  }, [response]);
+
+  // Here...
   const formik = useFormik({
     initialValues: {
       firstName: "",
@@ -28,34 +39,23 @@ const LandingSection = () => {
       type: "",
       comment: "",
     },
-    onSubmit: async (values) => {
-      try {
-        const response = await submit({
-          method: "POST", // Adjust this according to your API requirements
-          url: "your-api-endpoint-url", // Adjust this according to your API endpoint
-          data: values,
-        });
-
-        // Handle response or show success message
-        console.log("API response:", response);
-        onOpen("success", "Form submitted successfully!");
-      } catch (error) {
-        // Handle error or show error message
-        console.error("API error:", error);
-        onOpen("error", "An error occurred while submitting the form.");
-      }
+    onSubmit: (values) => {
+      submit("", values);
     },
-
     validationSchema: Yup.object({
-      firstName: Yup.string().required("First Name is required"),
-      email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
-      type: Yup.string().required("Type of enquiry is required"),
-      comment: Yup.string().required("Comment is required"),
+      firstName: Yup.string()
+        .required("Required")
+        .min(2, "Name must contain at least 2 letters"),
+      email: Yup.string().email().required("Required"),
+      type: Yup.string(),
+      comment: Yup.string()
+        .required("Required")
+        .min(25, "Must be at least 25 characters"),
     }),
   });
 
+  let x;
+  x = true;
   return (
     <FullScreenSection
       isDarkBackground
@@ -68,18 +68,34 @@ const LandingSection = () => {
           Contact me
         </Heading>
         <Box p={6} rounded="md" w="100%">
-          <form onSubmit={formik.handleSubmit}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              formik.handleSubmit(e);
+            }}
+          >
             <VStack spacing={4}>
-              <FormControl isInvalid={formik.errors.firstName}>
+              <FormControl
+                isInvalid={
+                  formik.touched.firstName && formik.errors.firstName
+                    ? true
+                    : false
+                }
+              >
                 <FormLabel htmlFor="firstName">Name</FormLabel>
                 <Input
                   id="firstName"
                   name="firstName"
+                  type="text"
                   {...formik.getFieldProps("firstName")}
                 />
                 <FormErrorMessage>{formik.errors.firstName}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={formik.errors.email}>
+              <FormControl
+                isInvalid={
+                  formik.touched.email && formik.errors.email ? true : false
+                }
+              >
                 <FormLabel htmlFor="email">Email Address</FormLabel>
                 <Input
                   id="email"
@@ -89,18 +105,28 @@ const LandingSection = () => {
                 />
                 <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={formik.errors.type}>
+              <FormControl>
                 <FormLabel htmlFor="type">Type of enquiry</FormLabel>
                 <Select id="type" name="type" {...formik.getFieldProps("type")}>
-                  <option value="hireMe">Freelance project proposal</option>
-                  <option value="openSource">
+                  <option value="hireMe" style={{ backgroundColor: "#512DA8" }}>
+                    Freelance project proposal
+                  </option>
+                  <option
+                    value="openSource"
+                    style={{ backgroundColor: "#512DA8" }}
+                  >
                     Open source consultancy session
                   </option>
-                  <option value="other">Other</option>
+                  <option value="other" style={{ backgroundColor: "#512DA8" }}>
+                    Other
+                  </option>
                 </Select>
-                <FormErrorMessage>{formik.errors.type}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={formik.errors.comment}>
+              <FormControl
+                isInvalid={
+                  formik.touched.comment && formik.errors.comment ? true : false
+                }
+              >
                 <FormLabel htmlFor="comment">Your message</FormLabel>
                 <Textarea
                   id="comment"
@@ -110,13 +136,8 @@ const LandingSection = () => {
                 />
                 <FormErrorMessage>{formik.errors.comment}</FormErrorMessage>
               </FormControl>
-              <Button
-                type="submit"
-                colorScheme="purple"
-                width="full"
-                isLoading={formik.isSubmitting}
-              >
-                Submit
+              <Button type="submit" colorScheme="purple" width="full">
+                Submit {isLoading && <Spinner marginLeft={"10px"} />}
               </Button>
             </VStack>
           </form>
