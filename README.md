@@ -1,9 +1,6 @@
-# Portfolio_React
-
-<h1>Meta Front End Course</h1>
-<img  width ="100px" src = "https://upload.wikimedia.org/wikipedia/commons/a/ab/Meta-Logo.png" alt= "meta_logo" >
-
 # React JS Project for Meta Front-End Specialization
+
+<img  width ="100px" src = "https://upload.wikimedia.org/wikipedia/commons/a/ab/Meta-Logo.png" alt= "meta_logo" >
 
 ## Course 6: Advanced React
 
